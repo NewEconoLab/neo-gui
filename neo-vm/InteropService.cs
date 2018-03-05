@@ -20,10 +20,10 @@ namespace Neo.VM
             dictionary[method] = handler;
         }
 
-        public virtual bool Invoke(string method, ExecutionEngine engine)
+        internal bool Invoke(string method, ExecutionEngine engine)
         {
-            if (!dictionary.ContainsKey(method)) return false;
-            return dictionary[method](engine);
+            if (!dictionary.TryGetValue(method, out Func<ExecutionEngine, bool> func)) return false;
+            return func(engine);
         }
 
         private static bool GetScriptContainer(ExecutionEngine engine)

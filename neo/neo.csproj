@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Copyright>2015-2017 The Neo Project</Copyright>
     <AssemblyTitle>Neo</AssemblyTitle>
-    <Version>2.7.1</Version>
+    <Version>2.7.2</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFramework>net47</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Neo</AssemblyName>
     <PackageId>Neo</PackageId>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>bin\Debug</OutputPath>
     <PlatformTarget>x64</PlatformTarget>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

@@ -39,7 +39,7 @@ namespace Neo.Network
                 await socket.ConnectAsync(address, ListenerEndpoint.Port);
                 OnConnected();//我連別人
             }
-            catch (SocketException e)
+            catch (SocketException)
             {
                 Disconnect(false);
                 return false;
@@ -70,7 +70,6 @@ namespace Neo.Network
         {
             IPEndPoint remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
             RemoteEndpoint = new IPEndPoint(remoteEndpoint.Address.MapToIPv6(), remoteEndpoint.Port);
-            this.RemoteEndpoint = new IPEndPoint(RemoteEndpoint.Address.MapToIPv6(), RemoteEndpoint.Port);
             stream = new NetworkStream(socket);
             connected = true;
         }

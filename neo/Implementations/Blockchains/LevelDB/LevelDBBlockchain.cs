@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Iterator = Neo.IO.Data.LevelDB.Iterator;
 
 namespace Neo.Implementations.Blockchains.LevelDB
 {
@@ -36,6 +37,13 @@ namespace Neo.Implementations.Blockchains.LevelDB
         public string FullLogPath;
         public int fulllog_splitcount;
         public int fulllog_splitindex;
+		
+		
+        /// <summary>
+        /// Return true if haven't got valid handle
+        /// </summary>
+        public override bool IsDisposed => disposed;
+		
         public LevelDBBlockchain(string path, string fulllogpath = null, int _fulllog_splitcount = 1, int _fulllog_splitindex = 0)
         {
             this.FullLogPath = fulllogpath;
@@ -573,29 +581,31 @@ namespace Neo.Implementations.Blockchains.LevelDB
 #pragma warning restore CS0612
                     case InvocationTransaction tx_invocation:
                         CachedScriptTable script_table = new CachedScriptTable(contracts);
-                        StateMachine service = new StateMachine(block, accounts, assets, contracts, storages);
-                        ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, tx_invocation, script_table, service, tx_invocation.Gas);
-                        ///add log
-                        bool bLog = false;
-                        var split = block.Header.Index % this.fulllog_splitcount;
-                        if (this.FullLogPath != null && split == this.fulllog_splitindex)// && this.FullLogSkip.Contains(itx.Hash.ToString()) == false)
-                            bLog = true;
-                        if (bLog)
-                            engine.BeginDebug();
+                        using ( StateMachine service = new StateMachine(block, accounts, assets, contracts, storages))
+						{
+	                        ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, tx_invocation, script_table, service, tx_invocation.Gas);
+	                        ///add log
+	                        bool bLog = false;
+	                        var split = block.Header.Index % this.fulllog_splitcount;
+	                        if (this.FullLogPath != null && split == this.fulllog_splitindex)// && this.FullLogSkip.Contains(itx.Hash.ToString()) == false)
+	                            bLog = true;
+	                        if (bLog)
+	                            engine.BeginDebug();
 
-                        engine.LoadScript(tx_invocation.Script, false);
-                        if (engine.Execute())
-                        {
-                            service.Commit();
-                        }
-                   		ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs(tx_invocation, service.Notifications.ToArray(), engine));
-                        //write fulllog
-                        if (bLog)
-                        {
-                            string filename = System.IO.Path.Combine(this.FullLogPath, tx.Hash.ToString() + ".llvmhex.txt");
-                            if (engine.FullLog != null)
-                                engine.FullLog.Save(filename);
-                        }
+	                        engine.LoadScript(tx_invocation.Script, false);
+	                        if (engine.Execute())
+	                        {
+	                            service.Commit();
+	                        }
+	                   		ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs(tx_invocation, service.Notifications.ToArray(), engine));
+	                        //write fulllog
+	                        if (bLog)
+	                        {
+	                            string filename = System.IO.Path.Combine(this.FullLogPath, tx.Hash.ToString() + ".llvmhex.txt");
+	                            if (engine.FullLog != null)
+	                                engine.FullLog.Save(filename);
+	                        }
+						}
                         break;
                 }
             }

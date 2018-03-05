@@ -3,7 +3,7 @@ using Neo.Cryptography.ECC;
 using Neo.SmartContract;
 using Neo.IO.Caching;
 using Neo.VM;
-using System;
+using Neo.VM.Types;
 using System.Numerics;
 using System.Text;
 using Neo.SmartContract.Debug;
@@ -229,8 +229,10 @@ namespace Neo.SmartContract
                         break;
                     case OpCode.UNPACK:
                         StackItem item = EvaluationStack.Peek();
-                        if (!(item is VM.Types.Array)) return false;
-                        size = (item as VM.Types.Array).Count;
+                        if (item is Array array)
+                            size = array.Count;
+                        else
+                            return false;
                         break;
                 }
             if (size == 0) return true;
@@ -338,7 +340,7 @@ namespace Neo.SmartContract
                     }
                 }
             }
-            catch(Exception err)
+            catch(System.Exception err)
             {
                 State |= VMState.FAULT;
                 return false;
@@ -491,11 +493,13 @@ namespace Neo.SmartContract
             DataCache<StorageKey, StorageItem> storages = Blockchain.Default.GetStates<StorageKey, StorageItem>();
             CachedScriptTable script_table = new CachedScriptTable(contracts);
             StateMachine service = new StateMachine(persisting_block, accounts, assets, contracts, storages);
-            ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, container, script_table, service, Fixed8.Zero, true);
+            using(ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, container, script_table, service, Fixed8.Zero, true))
+			{
             engine.BeginDebug();
             engine.LoadScript(script, false);
             engine.Execute();
             return engine;
+			}
         }
 		
 		
@@ -523,11 +527,13 @@ namespace Neo.SmartContract
             DataCache<UInt160, ContractState> contracts = Blockchain.Default.GetStates<UInt160, ContractState>();
             DataCache<StorageKey, StorageItem> storages = Blockchain.Default.GetStates<StorageKey, StorageItem>();
             CachedScriptTable script_table = new CachedScriptTable(contracts);
-            StateMachine service = new StateMachine(persisting_block, accounts, assets, contracts, storages);
-            ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, container, script_table, service, Fixed8.Zero, true);
-            engine.LoadScript(script, false);
-            engine.Execute();
-            return engine;
+            using (StateMachine service = new StateMachine(persisting_block, accounts, assets, contracts, storages))
+            {
+                ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, container, script_table, service, Fixed8.Zero, true);
+                engine.LoadScript(script, false);
+                engine.Execute();
+                return engine;
+            }
         }
 
         public Neo.SmartContract.Debug.FullLog FullLog

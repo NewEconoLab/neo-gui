@@ -5,7 +5,7 @@
     <AssemblyTitle>Neo.CLI</AssemblyTitle>
     <Version>2.7.1</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFramework>net47</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
     <AssemblyName>neo-cli</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Neo.CLI</PackageId>
@@ -22,7 +22,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

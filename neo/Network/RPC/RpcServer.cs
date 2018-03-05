@@ -321,28 +321,6 @@ namespace Neo.Network.RPC
 
                         }
                     }
-                case "getnotifyinfo":
-                    {
-                        try
-                        {
-                            uint index = (uint)_params[0].AsNumber();
-                            var filename = System.IO.Path.Combine(this.pathNotify, $"block-{index}.json");
-                            if (System.IO.File.Exists(filename))
-                            {
-                                JObject obj = JObject.Parse(System.IO.File.ReadAllText(filename));
-                                return obj;
-                            }
-                            else
-                            {
-                                throw new RpcException(-100, "do not find notify block");
-                            }
-                        }
-                        catch (Exception err)
-                        {
-                            throw new RpcException(-100, err.Message);
-
-                        }
-                    }
                 default:
                     throw new RpcException(-32601, "Method not found");
             }
