@@ -94,7 +94,6 @@ namespace plugin_sample
                 if (bDebug)
                 {
                     engine = ApplicationEngine.RunWithDebug(tx.Script, tx);
-                    engine.FullLog.Save("d:\\0x00.llvmhex.txt");
                 }
                 else
                 {

@@ -73,9 +73,6 @@ namespace Neo.UI
                         IO.ISerializable s = tx;
                         s.Serialize(br);
                     }
-                    var hex = ms.ToArray().ToHexString();
-                    System.IO.File.WriteAllText("d:\\0x00.transhex.txt", hex);
-
                 }
 
                 Program.CurrentWallet.ApplyTransaction(tx);
