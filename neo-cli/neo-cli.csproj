@@ -5,7 +5,7 @@
     <AssemblyTitle>Neo.CLI</AssemblyTitle>
     <Version>2.7.3</Version>
     <Authors>The Neo Project</Authors>
-    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+    <TargetFramework>netcoreapp20</TargetFramework>
     <AssemblyName>neo-cli</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Neo.CLI</PackageId>
@@ -26,6 +26,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="libleveldb.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="libleveldb.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="x64\libleveldb.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
