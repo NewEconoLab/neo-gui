@@ -1004,11 +1004,5 @@ namespace Neo.SmartContract
             }
             return false;
         }
-
-        public Neo.SmartContract.Debug.FullLog FullLog = null;
-        public void BeginDebug(Neo.SmartContract.Debug.FullLog fullLog)
-        {
-            this.FullLog = fullLog;
-        }
     }
 }

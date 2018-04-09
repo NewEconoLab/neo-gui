@@ -65,18 +65,7 @@ namespace Neo.UI
             if (context.Completed)
             {
                 context.Verifiable.Scripts = context.GetScripts();
-                using (var ms = new System.IO.MemoryStream())
-                {
-                    using (var br = new System.IO.BinaryWriter(ms))
-                    {
-                        //tx.SerializeUnsigned(br);
-                        IO.ISerializable s = tx;
-                        s.Serialize(br);
-                    }
-                }
-
                 Program.CurrentWallet.ApplyTransaction(tx);
-
                 Program.LocalNode.Relay(tx);
                 InformationBox.Show(tx.Hash.ToString(), Strings.SendTxSucceedMessage, Strings.SendTxSucceedTitle);
             }

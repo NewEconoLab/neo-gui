@@ -4,6 +4,7 @@ using Neo.SmartContract;
 using Neo.IO.Caching;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections;
 using System.Numerics;
 using System.Text;
 using Neo.SmartContract.Debug;
@@ -62,6 +63,7 @@ namespace Neo.SmartContract
 
         private bool CheckArraySize(OpCode nextInstruction)
         {
+            int size;
             switch (nextInstruction)
             {
                 case OpCode.PACK:
@@ -69,13 +71,30 @@ namespace Neo.SmartContract
                 case OpCode.NEWSTRUCT:
                     {
                         if (EvaluationStack.Count == 0) return false;
-                        int size = (int)EvaluationStack.Peek().GetBigInteger();
-                        if (size > MaxArraySize) return false;
-                        return true;
+                        size = (int)EvaluationStack.Peek().GetBigInteger();
                     }
+                    break;
+                case OpCode.SETITEM:
+                    {
+                        if (EvaluationStack.Count < 3) return false;
+                        if (!(EvaluationStack.Peek(2) is Map map)) return true;
+                        StackItem key = EvaluationStack.Peek(1);
+                        if (key is ICollection) return false;
+                        if (map.ContainsKey(key)) return true;
+                        size = map.Count + 1;
+                    }
+                    break;
+                case OpCode.APPEND:
+                    {
+                        if (EvaluationStack.Count < 2) return false;
+                        if (!(EvaluationStack.Peek(1) is Array array)) return false;
+                        size = array.Count + 1;
+                    }
+                    break;
                 default:
                     return true;
             }
+            return size <= MaxArraySize;
         }
 
         private bool CheckInvocationStack(OpCode nextInstruction)
@@ -225,6 +244,7 @@ namespace Neo.SmartContract
                     case OpCode.DUP:
                     case OpCode.OVER:
                     case OpCode.TUCK:
+                    case OpCode.NEWMAP:
                         size = 1;
                         break;
                     case OpCode.UNPACK:
@@ -544,12 +564,6 @@ namespace Neo.SmartContract
         public void BeginDebug()
         {//打开Log
             this.FullLog = new FullLog();
-
-            var sm = this.service as StateMachine;
-            if (sm != null)
-            {
-                sm.BeginDebug(this.FullLog);
-            }
         }
 
         public override void LoadScript(byte[] script, bool push_only = false)
