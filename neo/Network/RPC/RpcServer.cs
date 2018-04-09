@@ -227,6 +227,7 @@ namespace Neo.Network.RPC
                 case "sendrawtransaction":
                     {
                         Transaction tx = Transaction.DeserializeFrom(_params[0].AsString().HexToBytes());
+                        Neo.SmartContract.Debug.FullLog.RegNeedLog(tx.Hash);
                         return LocalNode.Relay(tx);
                     }
                 case "submitblock":
@@ -318,7 +319,7 @@ namespace Neo.Network.RPC
                                 throw new RpcException(-100, "do not find fulllog transaction");
                             }
                         }
-                        catch(Exception err)
+                        catch (Exception err)
                         {
                             throw new RpcException(-100, err.Message);
 

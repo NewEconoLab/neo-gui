@@ -34,30 +34,31 @@ namespace Neo.Implementations.Blockchains.LevelDB
         public override uint HeaderHeight => (uint)header_index.Count - 1;
         public override uint Height => current_block_height;
         public bool VerifyBlocks { get; set; } = true;
-        public string FullLogPath;
+        //public string FullLogPath;
         public int fulllog_splitcount;
         public int fulllog_splitindex;
-		
-		
+        public bool fullog_localonly = false;
+
         /// <summary>
         /// Return true if haven't got valid handle
         /// </summary>
         public override bool IsDisposed => disposed;
-		
-        public LevelDBBlockchain(string path, string fulllogpath = null, int _fulllog_splitcount = 1, int _fulllog_splitindex = 0)
+
+        public LevelDBBlockchain(string path, string fulllogpath = null, bool _fulllogonlylocal = false, int _fulllog_splitcount = 1, int _fulllog_splitindex = 0)
         {
-            this.FullLogPath = fulllogpath;
+            SmartContract.Debug.FullLog.Path = fulllogpath;
+            this.fullog_localonly = _fulllogonlylocal;
             this.fulllog_splitcount = _fulllog_splitcount;
             this.fulllog_splitindex = _fulllog_splitindex;
-            if (string.IsNullOrEmpty(this.FullLogPath) == false)
+            if (string.IsNullOrEmpty(SmartContract.Debug.FullLog.Path) == false)
             {
-                if (System.IO.Directory.Exists(FullLogPath) == false)
-                    System.IO.Directory.CreateDirectory(FullLogPath);
+                if (System.IO.Directory.Exists(SmartContract.Debug.FullLog.Path) == false)
+                    System.IO.Directory.CreateDirectory(SmartContract.Debug.FullLog.Path);
 
             }
             else
             {
-                this.FullLogPath = null;
+                SmartContract.Debug.FullLog.Path = null;
             }
 
             header_index.Add(GenesisBlock.Hash);
@@ -593,31 +594,39 @@ namespace Neo.Implementations.Blockchains.LevelDB
 #pragma warning restore CS0612
                     case InvocationTransaction tx_invocation:
                         CachedScriptTable script_table = new CachedScriptTable(contracts);
-                        using ( StateMachine service = new StateMachine(block, accounts, assets, contracts, storages))
-						{
-	                        ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, tx_invocation, script_table, service, tx_invocation.Gas);
-	                        ///add log
-	                        bool bLog = false;
-	                        var split = block.Header.Index % this.fulllog_splitcount;
-	                        if (this.FullLogPath != null && split == this.fulllog_splitindex)// && this.FullLogSkip.Contains(itx.Hash.ToString()) == false)
-	                            bLog = true;
-	                        if (bLog)
-	                            engine.BeginDebug();
+                        using (StateMachine service = new StateMachine(block, accounts, assets, contracts, storages))
+                        {
+                            ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, tx_invocation, script_table, service, tx_invocation.Gas);
+                            ///add log
+                            bool bLog = false;
+                            if(!fullog_localonly)
+                            {
+                                var split = block.Header.Index % this.fulllog_splitcount;
+                                if (SmartContract.Debug.FullLog.Path != null && split == this.fulllog_splitindex)// && this.FullLogSkip.Contains(itx.Hash.ToString()) == false)
+                                    bLog = true;
+                            }
+                           
+                            if(bLog==false)
+                            {
+                                bLog = SmartContract.Debug.FullLog.TestNeedLog(tx_invocation.Hash);
+                            }
+                            if (bLog)
+                                engine.BeginDebug();
 
-	                        engine.LoadScript(tx_invocation.Script, false);
-	                        if (engine.Execute())
-	                        {
-	                            service.Commit();
-	                        }
-	                   		ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs(tx_invocation, service.Notifications.ToArray(), engine));
-	                        //write fulllog
-	                        if (bLog)
-	                        {
-	                            string filename = System.IO.Path.Combine(this.FullLogPath, tx.Hash.ToString() + ".llvmhex.txt");
-	                            if (engine.FullLog != null)
-	                                engine.FullLog.Save(filename);
-	                        }
-						}
+                            engine.LoadScript(tx_invocation.Script, false);
+                            if (engine.Execute())
+                            {
+                                service.Commit();
+                            }
+                            ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs(tx_invocation, service.Notifications.ToArray(), engine));
+                            //write fulllog
+                            if (bLog)
+                            {
+                                string filename = System.IO.Path.Combine(SmartContract.Debug.FullLog.Path, tx.Hash.ToString() + ".llvmhex.txt");
+                                if (engine.FullLog != null)
+                                    engine.FullLog.Save(filename);
+                            }
+                        }
                         break;
                 }
             }

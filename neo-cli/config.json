@@ -1,9 +1,10 @@
 ﻿{
   "ApplicationConfiguration": {
     "Paths": {
-      "Chain": "D:\\Neo\\ChainTestNet",
-      "ApplicationLogs": "D:\\NeoCli\\Notifications",
-      "Fulllogs": "D:\\NeoCli\\FullLogs",
+      "Chain": "C:\\Neo\\ChainTestNet",
+      "ApplicationLogs": "C:\\NeoCli\\Notifications",
+      "Fulllogs": "C:\\NeoCli\\FullLogs",
+      "FullLogOnlyLocal": false,
       "Fulllog_splitCount": 1,
       "Fulllog_splitIndex": 0
     },

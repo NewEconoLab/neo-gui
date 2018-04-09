@@ -1,8 +1,9 @@
 ﻿{
   "ApplicationConfiguration": {
     "Paths": {
-      "Chain": "D:\\Neo\\ChainTestNet",
-      "FullLog": "d:\\Neo\\FullLogs",
+      "Chain": "C:\\Neo\\ChainTestNet",
+      "FullLog": "C:\\Neo\\FullLogs",
+      "FullLogOnlyLocal": true,
       "CertCache": "Certs"
     },
     "P2P": {

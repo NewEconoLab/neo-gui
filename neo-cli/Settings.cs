@@ -32,6 +32,7 @@ namespace Neo
         public string Chain { get; }
         public string ApplicationLogs { get; }
         public string Fulllogs { get; }
+        public bool FullLogOnlyLocal { get; }
         public int fulllog_splitcount { get; }
         public int fulllog_splitindex { get; }
         public PathsSettings(IConfigurationSection section)
@@ -39,6 +40,15 @@ namespace Neo
             this.Chain = section.GetSection("Chain").Value;
             this.ApplicationLogs = Path.Combine(AppContext.BaseDirectory, $"ApplicationLogs_{Message.Magic:X8}");
             this.Fulllogs = section.GetSection("Fulllogs").Value;
+            var local = section.GetSection("FullLogOnlyLocal");
+            if (local == null)
+            {
+                this.FullLogOnlyLocal = false;
+            }
+            else
+            {
+                this.FullLogOnlyLocal = Boolean.Parse(local.Value);
+            } 
             var cvalue = section.GetSection("Fulllog_splitCount").Value;
             var ivalue = section.GetSection("Fulllog_splitIndex").Value;
             if (cvalue == null || ivalue == null)

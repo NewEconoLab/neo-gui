@@ -115,6 +115,22 @@ namespace Neo.SmartContract.Debug
 
     public class FullLog
     {
+        public static string Path = "fulllogs";
+        public static List<Neo.UInt256> txids = new List<UInt256>();
+        public static void RegNeedLog(Neo.UInt256 txid)
+        {
+            if(txids.Contains(txid)==false)
+            {
+                txids.Add(txid);
+            }
+        }
+        public static bool TestNeedLog(Neo.UInt256 txid)
+        {
+            if (txids.Contains(txid))
+                return true;
+
+            return false;
+        }
         public LogScript script = null;
         public string error = null;
         public VM.VMState state = VM.VMState.NONE;
@@ -130,6 +146,8 @@ namespace Neo.SmartContract.Debug
             }
             else
             {
+                if (curOp == null)
+                    return;
                 curOp.subScript = new LogScript(hash);
                 curOp.subScript.parent = curScript;
                 curScript = curOp.subScript;

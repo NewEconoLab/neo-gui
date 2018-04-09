@@ -748,6 +748,7 @@ namespace Neo.Shell
         {
             Blockchain.RegisterBlockchain(new LevelDBBlockchain(Settings.Default.Paths.Chain,
                 Settings.Default.Paths.Fulllogs,
+                Settings.Default.Paths.FullLogOnlyLocal,
                 Settings.Default.Paths.fulllog_splitcount,
                 Settings.Default.Paths.fulllog_splitindex));
             if (!args.Contains("--nopeers") && File.Exists(PeerStatePath))

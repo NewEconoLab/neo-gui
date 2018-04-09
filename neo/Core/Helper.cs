@@ -45,6 +45,18 @@ namespace Neo.Core
 
         internal static bool VerifyScripts(this IVerifiable verifiable)
         {
+            bool bLog = false;
+            string logpath = "";
+            if (verifiable is Transaction)
+            {
+                var hash = (verifiable as Transaction).Hash;
+                if (Neo.SmartContract.Debug.FullLog.TestNeedLog(hash))
+                {
+                    bLog = true;
+                    logpath = System.IO.Path.Combine(Neo.SmartContract.Debug.FullLog.Path, hash.ToString());
+                }
+            }
+
             UInt160[] hashes;
             try
             {
@@ -73,9 +85,19 @@ namespace Neo.Core
                 using (StateReader service = new StateReader())
                 {
                     ApplicationEngine engine = new ApplicationEngine(TriggerType.Verification, verifiable, Blockchain.Default, service, Fixed8.Zero);
+                    if (bLog)
+                    {
+                        engine.BeginDebug();
+                    }
                     engine.LoadScript(verification, false);
                     engine.LoadScript(verifiable.Scripts[i].InvocationScript, true);
                     if (!engine.Execute()) return false;
+                    if (bLog)
+                    {
+                        string filename = logpath + "[" + i + "].llvmhex.txt";
+                        if (engine.FullLog != null)
+                            engine.FullLog.Save(filename);
+                    }
                     if (engine.EvaluationStack.Count != 1 || !engine.EvaluationStack.Pop().GetBoolean()) return false;
                 }
             }

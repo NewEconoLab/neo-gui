@@ -31,11 +31,22 @@ namespace Neo.Properties
         public string Chain { get; }
         public string CertCache { get; }
 		public string FullLog { get; }
+        public bool FullLogOnlyLocal { get; }
+
         public PathsSettings(IConfigurationSection section)
         {
             this.Chain = section.GetSection("Chain").Value;
             this.CertCache = section.GetSection("CertCache").Value;
             this.FullLog = section.GetSection("FullLog").Value;
+            var local = section.GetSection("FullLogOnlyLocal");
+            if (local == null)
+            {
+                this.FullLogOnlyLocal = false;
+            }
+            else
+            {
+                this.FullLogOnlyLocal = bool.Parse(local.Value);
+            }
         }
     }
 
