@@ -48,9 +48,8 @@ namespace llvm
             src.Close();
             return true;
         }
-        public static byte[] ToBytes(string srcfile)
+        public static byte[] ToBytes(System.IO.Stream src)
         {
-            var src = System.IO.File.OpenRead(srcfile);
             var dest = new System.IO.MemoryStream();
 
             var encoder = new SevenZip.Compression.LZMA.Encoder();
@@ -70,6 +69,11 @@ namespace llvm
             dest.Close();
             src.Close();
             return array;
+        }
+        public static byte[] ToBytes(string srcfile)
+        {
+            var src = System.IO.File.OpenRead(srcfile);
+            return ToBytes(src);
         }
     }
 }

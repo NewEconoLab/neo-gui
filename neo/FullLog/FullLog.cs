@@ -119,7 +119,7 @@ namespace Neo.SmartContract.Debug
         public static List<Neo.UInt256> txids = new List<UInt256>();
         public static void RegNeedLog(Neo.UInt256 txid)
         {
-            if(txids.Contains(txid)==false)
+            if (txids.Contains(txid) == false)
             {
                 txids.Add(txid);
             }
@@ -188,15 +188,8 @@ namespace Neo.SmartContract.Debug
         {
             this.state = state;
         }
-        public void Save(string filename)
+        public string SaveToString()
         {
-            var path = System.IO.Path.GetDirectoryName(filename);
-            if (System.IO.Directory.Exists(path) == false)
-                System.IO.Directory.CreateDirectory(path);
-
-            System.IO.File.Delete(filename + ".json");
-            System.IO.File.Delete(filename);
-
             var json = new MyJson.JsonNode_Object();
             json.SetDictValue("script", script.ToJson());
             if (string.IsNullOrEmpty(error) == false)
@@ -205,9 +198,34 @@ namespace Neo.SmartContract.Debug
 
             StringBuilder sb = new StringBuilder();
             json.ConvertToStringWithFormat(sb, 0);
-            System.IO.File.WriteAllText(filename, sb.ToString());
 
-            var bts =llvm.QuickFile.ToBytes(filename);
+            var jsontxt = sb.ToString();
+
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(jsontxt);
+            var ms = new System.IO.MemoryStream(data);
+
+            var bts = llvm.QuickFile.ToBytes(ms);
+
+
+            return bts.ToHexString();
+        }
+
+        public void Save(string filename)
+        {
+            var path = System.IO.Path.GetDirectoryName(filename);
+            if (System.IO.Directory.Exists(path) == false)
+                System.IO.Directory.CreateDirectory(path);
+
+            //System.IO.File.Delete(filename + ".json");
+            System.IO.File.Delete(filename);
+
+
+            var text = SaveToString();
+
+            //System.IO.File.WriteAllText(filename, text);
+            //byte[] data = System.Text.Encoding.UTF8.GetBytes();
+
+            //var bts = llvm.QuickFile.ToBytes(filename);
             //var compressor = new SevenZip.SevenZipCompressor();
             //compressor.CompressionMethod = SevenZip.CompressionMethod.Lzma;
             //compressor.CompressionLevel = SevenZip.CompressionLevel.Fast;
@@ -215,8 +233,8 @@ namespace Neo.SmartContract.Debug
 
             ////compressor.path = path;
             //compressor.CompressFiles(filename, System.IO.Path.GetFullPath(filename + ".json"));
-            System.IO.File.WriteAllText(filename, bts.ToHexString());
-            System.IO.File.Delete(filename + ".json");
+            System.IO.File.WriteAllText(filename, text);
+            //System.IO.File.Delete(filename + ".json");
 
         }
         public static FullLog Load(string filename)

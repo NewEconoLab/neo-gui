@@ -59,12 +59,13 @@ namespace Neo.Network.RPC
 
         private static JObject GetInvokeResult(byte[] script)
         {
-            ApplicationEngine engine = ApplicationEngine.Run(script);
+            ApplicationEngine engine = ApplicationEngine.RunWithDebug(script);
             JObject json = new JObject();
             json["script"] = script.ToHexString();
             json["state"] = engine.State;
             json["gas_consumed"] = engine.GasConsumed.ToString();
             json["stack"] = new JArray(engine.EvaluationStack.Select(p => p.ToParameter().ToJson()));
+            json["fulllog"] = engine.FullLog.SaveToString();
             return json;
         }
 
