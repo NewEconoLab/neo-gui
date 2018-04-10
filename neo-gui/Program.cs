@@ -105,7 +105,8 @@ namespace Neo
                 {
                     LocalNode.LoadState(fs);
                 }
-            using (Blockchain.RegisterBlockchain(new LevelDBBlockchain(Settings.Default.Paths.Chain,Settings.Default.Paths.FullLog)))
+            using (Blockchain.RegisterBlockchain(new LevelDBBlockchain(Settings.Default.Paths.Chain,Settings.Default.Paths.FullLog,
+                Settings.Default.Paths.FullLogOnlyLocal)))
             using (LocalNode = new LocalNode())
             {
                 LocalNode.UpnpEnabled = true;
