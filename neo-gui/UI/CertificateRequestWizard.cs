@@ -35,7 +35,8 @@ namespace Neo.UI
                 const int ECDSA_PRIVATE_P256_MAGIC = 0x32534345;
                 prikey = BitConverter.GetBytes(ECDSA_PRIVATE_P256_MAGIC).Concat(BitConverter.GetBytes(32)).Concat(pubkey).Concat(key.PrivateKey).ToArray();
             }
-            CX509PrivateKey x509key = new CX509PrivateKey();
+            dynamic x509key = new CX509PrivateKey();
+            //dynamic doy = x509key;
             x509key.AlgorithmName = "ECDSA_P256";
             x509key.Import("ECCPRIVATEBLOB", Convert.ToBase64String(prikey));
             Array.Clear(prikey, 0, prikey.Length);
