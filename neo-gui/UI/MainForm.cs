@@ -235,7 +235,7 @@ namespace Neo.UI
                 item.SubItems["confirmations"].Text = confirmations?.ToString() ?? Strings.Unconfirmed;
             }
         }
-		
+
         class Api : Neo.GUIPlugin.IAPI2
         {
             public Network.LocalNode LocalNode => Program.LocalNode;
@@ -251,7 +251,7 @@ namespace Neo.UI
             {
                 Helper.SignAndShowInformation(tx);
             }
-            
+
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -262,6 +262,18 @@ namespace Neo.UI
             plugintool.LoadDlls(api);
             var pluginMenu = new ToolStripMenuItem();
             pluginMenu.Text = "Plugin";
+            System.Windows.Forms.ToolStripMenuItem item = new System.Windows.Forms.ToolStripMenuItem();
+
+            {//add fulllog switch
+                var blockchain = (LevelDBBlockchain)Blockchain.Default;
+                item.Text = "Fulllog localonly=" + blockchain.fullog_localonly;
+                item.Click += (s, ee) =>
+                {
+                    blockchain.fullog_localonly = !blockchain.fullog_localonly;
+                    item.Text = "Fulllog localonly=" + blockchain.fullog_localonly;
+                };
+                pluginMenu.DropDownItems.Add(item);
+            }
             this.menuStrip1.Items.Add(pluginMenu);
             plugintool.InitMenu(pluginMenu);
 
