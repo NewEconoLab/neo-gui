@@ -292,7 +292,7 @@ namespace Neo.SmartContract
                         if (this.FullLog != null)
                         {
                             this.FullLog.NextOp(CurrentContext.InstructionPointer, nextOpcode);
-                            this.EvaluationStack.ClearRecord();
+                            (this.EvaluationStack as ExecutionStackRecord).ClearRecord();
                         }
                         gas_consumed = checked(gas_consumed + GetPrice(nextOpcode) * ratio);
                         if (!testMode && gas_consumed > gas_amount)
@@ -341,20 +341,21 @@ namespace Neo.SmartContract
                     StepInto();
                     if (FullLog != null)
                     {
+                        var EvaluationStackRec = this.EvaluationStack as ExecutionStackRecord;
                         VM.StackItem result = null;
-                        ExecutionStackRecord.Op[] record = this.EvaluationStack.record.ToArray();
-                        var ltype = this.EvaluationStack.GetLastRecordType();
+                        ExecutionStackRecord.Op[] record = EvaluationStackRec.record.ToArray();
+                        var ltype = EvaluationStackRec.GetLastRecordType();
                         if (ltype == ExecutionStackRecord.OpType.Push)
                         {
-                            result = this.EvaluationStack.PeekWithoutLog();
+                            result = EvaluationStackRec.PeekWithoutLog();
                         }
                         else if (ltype == ExecutionStackRecord.OpType.Insert)
                         {
-                            result = this.EvaluationStack.PeekWithoutLog(this.EvaluationStack.record.Last().ind);
+                            result = EvaluationStackRec.PeekWithoutLog(EvaluationStackRec.record.Last().ind);
                         }
                         else if (ltype == ExecutionStackRecord.OpType.Set)
                         {
-                            result = this.EvaluationStack.PeekWithoutLog(this.EvaluationStack.record.Last().ind);
+                            result = EvaluationStackRec.PeekWithoutLog(EvaluationStackRec.record.Last().ind);
                         }
                         LogResult(nextOpcode, record, result);
                     }
@@ -564,6 +565,7 @@ namespace Neo.SmartContract
         public void BeginDebug()
         {//打开Log
             this.FullLog = new FullLog();
+            this.EvaluationStack = new ExecutionStackRecord();
         }
 
         public override void LoadScript(byte[] script, bool push_only = false)
