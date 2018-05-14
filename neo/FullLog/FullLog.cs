@@ -49,8 +49,17 @@ namespace Neo.SmartContract.Debug
             var type = item.GetType().Name;
             if (type == "InteropInterface")
             {
-                json.SetDictValue(type, (item as VM.Types.InteropInterface).GetInterface<VM.IInteropInterface>().GetType().Name);
+                var _interface = (item as VM.Types.InteropInterface).GetInterface<VM.IInteropInterface>();
+                if (_interface == null)
+                {
+                    json.SetDictValue(type, "<null>");
+                }
+                else
+                {
+                    json.SetDictValue(type, (item as VM.Types.InteropInterface).GetInterface<VM.IInteropInterface>().GetType().Name);
+                }
             }
+
             else if (type == "Boolean")
             {
                 json.SetDictValue(type, item.GetBoolean().ToString());
@@ -73,6 +82,7 @@ namespace Neo.SmartContract.Debug
                 }
             }
             return json;
+
         }
         public MyJson.JsonNode_Object ToJson()
         {
