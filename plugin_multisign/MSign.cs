@@ -1,14 +1,9 @@
 ﻿using Neo;
 using Neo.Core;
+using Neo.SmartContract;
 using Neo.Wallets;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace plugin_multisign
@@ -85,6 +80,7 @@ namespace plugin_multisign
             }
 
             wifsList.Items.Add(wif);
+            wifText.Text = "";
         }
 
         /// <summary>
@@ -94,7 +90,8 @@ namespace plugin_multisign
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
-
+            Transaction tx = MakeTran();
+            Sign(tx);
         }
 
         private Transaction MakeTran()
@@ -109,10 +106,43 @@ namespace plugin_multisign
             outputs[0].AssetId = UInt256.Parse(dAsset[comAsset.Text]);
 
             outputs[0].Value = new BigDecimal(Fixed8.Parse(amountText.Text).GetData(), 8).ToFixed8();
+
             outputs[0].ScriptHash = Wallet.ToScriptHash(targetAddr.Text.ToString());
             tx.Outputs = outputs;
-            tx = plugin_multisign.api.CurrentWallet.MakeTransaction(tx, change_address: ChangeAddress, fee: Fee);
+            tx = plugin_multisign.api.CurrentWallet.MakeTransaction(tx, change_address: plugin_multisign.api.CurrentWallet.GetChangeAddress(), fee: Fixed8.Zero);
             return tx;
+        }
+
+        private void Sign(Transaction tx)
+        {
+            ContractParametersContext context;
+            try
+            {
+                context = new ContractParametersContext(tx);
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("无效的操作");
+                return;
+            }
+
+            for (int j = 0; j < wifsList.Items.Count; j++)
+            {
+                var prikey = Wallet.GetPrivateKeyFromWIF(wifsList.Items[j].ToString());
+                KeyPair key = new KeyPair(prikey);
+                WalletAccount account = plugin_multisign.api.CurrentWallet.GetAccount(context.ScriptHashes[0]);
+                byte[] signature = context.Verifiable.Sign(key);
+                context.AddSignature(account.Contract, key.PublicKey, signature);
+            }
+
+            if (context.Completed)
+            {
+                MessageBox.Show("转账完成");
+                context.Verifiable.Scripts = context.GetScripts();
+                plugin_multisign.api.CurrentWallet.ApplyTransaction(tx);
+                plugin_multisign.api.LocalNode.Relay(tx);
+                
+            }
         }
     }
 }

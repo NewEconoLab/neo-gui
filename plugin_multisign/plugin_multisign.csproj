@@ -33,6 +33,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -60,6 +61,10 @@
     <ProjectReference Include="..\neo-gui_pluginframework\neo-gui_pluginframework.csproj">
       <Project>{F3166EDF-72D3-4301-947F-F66C211AC2FB}</Project>
       <Name>neo-gui_pluginframework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\neo-vm\neo-vm.csproj">
+      <Project>{779622D1-C4DC-4B7C-BA3C-0F08CBA07B07}</Project>
+      <Name>neo-vm</Name>
     </ProjectReference>
     <ProjectReference Include="..\neo\neo.csproj">
       <Project>{6C7A8A35-58BA-45BE-A0D6-8F220B3FF2DF}</Project>
