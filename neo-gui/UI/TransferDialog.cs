@@ -96,6 +96,7 @@ namespace Neo.UI
                             sb.Emit(OpCode.THROWIFNOT);
                         }
                     }
+
                     tx = new InvocationTransaction
                     {
                         Version = 1,

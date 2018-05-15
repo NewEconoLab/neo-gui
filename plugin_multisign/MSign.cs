@@ -1,4 +1,5 @@
 ﻿using Neo;
+using Neo.Core;
 using Neo.Wallets;
 using System;
 using System.Collections.Generic;
@@ -94,6 +95,24 @@ namespace plugin_multisign
         private void button2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private Transaction MakeTran()
+        {
+            Transaction tx = new ContractTransaction();
+            List<TransactionAttribute> attributes = new List<TransactionAttribute>();
+            tx.Attributes = attributes.ToArray();
+
+
+            TransactionOutput[] outputs = new TransactionOutput[1];
+            outputs[0] = new TransactionOutput();
+            outputs[0].AssetId = UInt256.Parse(dAsset[comAsset.Text]);
+
+            outputs[0].Value = new BigDecimal(Fixed8.Parse(amountText.Text).GetData(), 8).ToFixed8();
+            outputs[0].ScriptHash = Wallet.ToScriptHash(targetAddr.Text.ToString());
+            tx.Outputs = outputs;
+            tx = plugin_multisign.api.CurrentWallet.MakeTransaction(tx, change_address: ChangeAddress, fee: Fee);
+            return tx;
         }
     }
 }
