@@ -13,8 +13,6 @@ namespace plugin_multisign
         Dictionary<string, string> dAsset = new Dictionary<string, string>();
         Dictionary<string, UInt160> dAddress = new Dictionary<string, UInt160>();
 
-
-
         public MSign()
         {
             InitializeComponent();
