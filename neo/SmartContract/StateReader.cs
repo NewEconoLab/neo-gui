@@ -124,6 +124,7 @@ namespace Neo.SmartContract
             Register("Neo.Asset.GetAdmin", Asset_GetAdmin);
             Register("Neo.Asset.GetIssuer", Asset_GetIssuer);
             Register("Neo.Contract.GetScript", Contract_GetScript);
+            Register("Neo.Contract.IsPayable", Contract_IsPayable);
             Register("Neo.Storage.GetContext", Storage_GetContext);
             Register("Neo.Storage.Get", Storage_Get);
             Register("Neo.Storage.Find", Storage_Find);
@@ -281,6 +282,15 @@ namespace Neo.SmartContract
                     foreach (StackItem subitem in array)
                         SerializeStackItem(subitem, writer);
                     break;
+                case Map map:
+                    writer.Write((byte)StackItemType.Map);
+                    writer.WriteVarInt(map.Count);
+                    foreach (var pair in map)
+                    {
+                        SerializeStackItem(pair.Key, writer);
+                        SerializeStackItem(pair.Value, writer);
+                    }
+                    break;
             }
         }
 
@@ -316,13 +326,27 @@ namespace Neo.SmartContract
                     return new Integer(new BigInteger(reader.ReadVarBytes()));
                 case StackItemType.Array:
                 case StackItemType.Struct:
-                    VMArray array = type == StackItemType.Struct ? new Struct() : new VMArray();
-                    ulong count = reader.ReadVarInt();
-                    while (count-- > 0)
-                        array.Add(DeserializeStackItem(reader));
-                    return array;
+                    {
+                        VMArray array = type == StackItemType.Struct ? new Struct() : new VMArray();
+                        ulong count = reader.ReadVarInt();
+                        while (count-- > 0)
+                            array.Add(DeserializeStackItem(reader));
+                        return array;
+                    }
+                case StackItemType.Map:
+                    {
+                        Map map = new Map();
+                        ulong count = reader.ReadVarInt();
+                        while (count-- > 0)
+                        {
+                            StackItem key = DeserializeStackItem(reader);
+                            StackItem value = DeserializeStackItem(reader);
+                            map[key] = value;
+                        }
+                        return map;
+                    }
                 default:
-                    return null;
+                    throw new FormatException();
             }
         }
 
@@ -332,8 +356,19 @@ namespace Neo.SmartContract
             using (MemoryStream ms = new MemoryStream(data, false))
             using (BinaryReader reader = new BinaryReader(ms))
             {
-                StackItem item = DeserializeStackItem(reader);
-                if (item == null) return false;
+                StackItem item;
+                try
+                {
+                    item = DeserializeStackItem(reader);
+                }
+                catch (FormatException)
+                {
+                    return false;
+                }
+                catch (IOException)
+                {
+                    return false;
+                }
                 engine.EvaluationStack.Push(item);
             }
             return true;
@@ -448,8 +483,10 @@ namespace Neo.SmartContract
         {
             UInt160 hash = new UInt160(engine.EvaluationStack.Pop().GetByteArray());
             ContractState contract = Contracts.TryGet(hash);
-            if (contract == null) return false;
-            engine.EvaluationStack.Push(StackItem.FromInterface(contract));
+            if (contract == null)
+                engine.EvaluationStack.Push(new byte[0]);
+            else
+                engine.EvaluationStack.Push(StackItem.FromInterface(contract));
             return true;
         }
 
@@ -909,6 +946,18 @@ namespace Neo.SmartContract
                 ContractState contract = _interface.GetInterface<ContractState>();
                 if (contract == null) return false;
                 engine.EvaluationStack.Push(contract.Script);
+                return true;
+            }
+            return false;
+        }
+
+        protected virtual bool Contract_IsPayable(ExecutionEngine engine)
+        {
+            if (engine.EvaluationStack.Pop() is InteropInterface _interface)
+            {
+                ContractState contract = _interface.GetInterface<ContractState>();
+                if (contract == null) return false;
+                engine.EvaluationStack.Push(contract.Payable);
                 return true;
             }
             return false;
