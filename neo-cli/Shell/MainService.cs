@@ -876,7 +876,7 @@ namespace Neo.Shell
                         useLog = true;
                         break;
                 }
-            Blockchain.RegisterBlockchain(new LevelDBBlockchain(Path.GetFullPath(Settings.Default.Paths.Chain)));
+            Blockchain.RegisterBlockchain(new LevelDBBlockchain(Path.GetFullPath(Settings.Default.Paths.Chain),Path.GetFullPath(Settings.Default.Paths.Fulllogs)));
             if (!nopeers && File.Exists(PeerStatePath))
                 using (FileStream fs = new FileStream(PeerStatePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
@@ -947,7 +947,7 @@ namespace Neo.Shell
                         OnStartConsensusCommand(null);
                     }
                 }
-                if (useRPC)
+                //if (useRPC)
                 {
                     rpc = new RpcServerWithWallet(LocalNode);
                     rpc.Start(Settings.Default.RPC.Port, Settings.Default.RPC.SslCert, Settings.Default.RPC.SslCertPassword,
