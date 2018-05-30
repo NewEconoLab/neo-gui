@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "llvm", "llvm\llvm.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "plugin_multisign", "plugin_multisign\plugin_multisign.csproj", "{6868DF78-DCB7-4803-81F4-48983B6128ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unllvm", "unllvm\unllvm.csproj", "{236F3D4E-8E23-4016-BE74-A8167D34BBA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +225,24 @@ Global
 		{6868DF78-DCB7-4803-81F4-48983B6128ED}.Release|x64.Build.0 = Release|Any CPU
 		{6868DF78-DCB7-4803-81F4-48983B6128ED}.Release|x86.ActiveCfg = Release|Any CPU
 		{6868DF78-DCB7-4803-81F4-48983B6128ED}.Release|x86.Build.0 = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|x64.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Debug|x86.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|Any CPU.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|Any CPU.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|x64.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|x64.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|x86.ActiveCfg = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Deploy|x86.Build.0 = Debug|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|x64.ActiveCfg = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|x64.Build.0 = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|x86.ActiveCfg = Release|Any CPU
+		{236F3D4E-8E23-4016-BE74-A8167D34BBA8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
