@@ -916,7 +916,13 @@ namespace Neo.Shell
                         useLog = true;
                         break;
                 }
-            Blockchain.RegisterBlockchain(new LevelDBBlockchain(Path.GetFullPath(Settings.Default.Paths.Chain)));
+            Blockchain.RegisterBlockchain(new LevelDBBlockchain(
+                Path.GetFullPath(Settings.Default.Paths.Chain),
+                Path.GetFullPath(Settings.Default.Paths.Fulllogs),
+                Settings.Default.Paths.FullLogOnlyLocal,
+                Settings.Default.Paths.fulllog_splitcount,
+                Settings.Default.Paths.fulllog_splitindex
+                ));
             if (!nopeers && File.Exists(PeerStatePath))
                 using (FileStream fs = new FileStream(PeerStatePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
