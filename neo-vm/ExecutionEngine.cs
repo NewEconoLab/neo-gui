@@ -100,7 +100,7 @@ namespace Neo.VM
         public IScriptContainer ScriptContainer { get; }
         public ICrypto Crypto { get; }
         public RandomAccessStack<ExecutionContext> InvocationStack { get; } = new RandomAccessStack<ExecutionContext>();
-        public RandomAccessStack<StackItem> EvaluationStack { get; } = new ExecutionStackRecord();
+        public ExecutionStackRecord EvaluationStack/* { get; }*/ = new ExecutionStackRecord();
         public RandomAccessStack<StackItem> AltStack { get; } = new RandomAccessStack<StackItem>();
         public ExecutionContext CurrentContext => InvocationStack.Peek();
         public ExecutionContext CallingContext => InvocationStack.Count > 1 ? InvocationStack.Peek(1) : null;

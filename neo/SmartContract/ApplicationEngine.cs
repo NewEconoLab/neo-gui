@@ -328,7 +328,7 @@ namespace Neo.SmartContract
                         if (this.FullLog != null)
                         {
                             this.FullLog.NextOp(CurrentContext.InstructionPointer, nextOpcode);
-                            (this.EvaluationStack as ExecutionStackRecord).ClearRecord();
+                            this.EvaluationStack.ClearRecord();
                         }
                         gas_consumed = checked(gas_consumed + GetPrice(nextOpcode) * ratio);
                         if (!testMode && gas_consumed > gas_amount)
@@ -377,7 +377,7 @@ namespace Neo.SmartContract
                     StepInto();
                     if (FullLog != null)
                     {
-                        var EvaluationStackRec = this.EvaluationStack as ExecutionStackRecord;
+                        var EvaluationStackRec = this.EvaluationStack;
                         VM.StackItem result = null;
                         ExecutionStackRecord.Op[] record = EvaluationStackRec.record.ToArray();
                         var ltype = EvaluationStackRec.GetLastRecordType();
