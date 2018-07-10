@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Text;
 using System.Data;
+using Neo.Implementations.Blockchains.LevelDB;
 
 namespace plugin_nns
 {
@@ -36,32 +37,34 @@ namespace plugin_nns
 
         private void NCNotify(object sender, ApplicationExecutedEventArgs e)
         {
-            var a = e.Notifications[0].ScriptHash;
+            var a = e.ExecutionResults[0].ScriptHash;
             var b = UInt160.Parse(NnsResolverAddrScripthash);
             var c = UInt160.Parse("c191b3e4030b9105e59c6bb56ec0d1273cd43284");
             //DataRow r = dt.NewRow();
             //r[0] = a;
             //r[1] = b;
             //dt.Rows.Add(r);
-
-            if ((a == b) || (a == c))
+            foreach (var result in e.ExecutionResults)
             {
-                var e2 = e.Notifications;
-                foreach (NotifyEventArgs notify in e2)
+                if ((a == b) || (a == c))
                 {
-                    string scripthash = notify.ScriptHash.ToString();
-                    StackItem s = notify.State;
-                    string key = (s as Neo.VM.Types.Array)[0].GetString();
-                    string value = (s as Neo.VM.Types.Array)[1].GetByteArray().ToHexString();
+                    var e2 = e.ExecutionResults;
+                    foreach (NotifyEventArgs notify in result.Notifications)
+                    {
+                        string scripthash = notify.ScriptHash.ToString();
+                        StackItem s = notify.State;
+                        string key = (s as Neo.VM.Types.Array)[0].GetString();
+                        string value = (s as Neo.VM.Types.Array)[1].GetByteArray().ToHexString();
 
-                    var r = dt.NewRow();
-                    r[0] = scripthash;
-                    r[1] = key;
-                    r[2] = value;
-                    r[3] = DateTime.Now;
-                    dt.Rows.Add(r);
+                        var r = dt.NewRow();
+                        r[0] = scripthash;
+                        r[1] = key;
+                        r[2] = value;
+                        r[3] = DateTime.Now;
+                        dt.Rows.Add(r);
 
-                    //MessageBox.Show("0x" + value, key);
+                        //MessageBox.Show("0x" + value, key);
+                    }
                 }
             }
             //plugin_nns.api.SignAndShowInformation(tx);
