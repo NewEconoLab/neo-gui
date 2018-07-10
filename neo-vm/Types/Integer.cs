@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 
 namespace Neo.VM.Types
@@ -17,17 +16,11 @@ namespace Neo.VM.Types
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(null, other)) return false;
-            if (other is Integer i) return value == i.value;
-            byte[] bytes_other;
-            try
-            {
-                bytes_other = other.GetByteArray();
-            }
-            catch (NotSupportedException)
-            {
-                return false;
-            }
-            return GetByteArray().SequenceEqual(bytes_other);
+            Integer i = other as Integer;
+            if (i == null)
+                return GetByteArray().SequenceEqual(other.GetByteArray());
+            else
+                return value == i.value;
         }
 
         public override BigInteger GetBigInteger()

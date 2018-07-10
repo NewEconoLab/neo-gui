@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Neo.VM.Types
 {
@@ -16,16 +15,7 @@ namespace Neo.VM.Types
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(null, other)) return false;
-            byte[] bytes_other;
-            try
-            {
-                bytes_other = other.GetByteArray();
-            }
-            catch (NotSupportedException)
-            {
-                return false;
-            }
-            return value.SequenceEqual(bytes_other);
+            return value.SequenceEqual(other.GetByteArray());
         }
 
         public override byte[] GetByteArray()

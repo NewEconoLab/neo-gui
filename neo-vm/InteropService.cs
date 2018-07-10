@@ -22,8 +22,8 @@ namespace Neo.VM
 
         internal bool Invoke(string method, ExecutionEngine engine)
         {
-            if (!dictionary.TryGetValue(method, out Func<ExecutionEngine, bool> func)) return false;
-            return func(engine);
+            if (!dictionary.ContainsKey(method)) return false;
+            return dictionary[method](engine);
         }
 
         private static bool GetScriptContainer(ExecutionEngine engine)

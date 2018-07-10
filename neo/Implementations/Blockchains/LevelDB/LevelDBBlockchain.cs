@@ -277,7 +277,7 @@ namespace Neo.Implementations.Blockchains.LevelDB
         public override IEnumerable<ValidatorState> GetEnrollments()
         {
             HashSet<ECPoint> sv = new HashSet<ECPoint>(StandbyValidators);
-            return db.Find<ValidatorState>(ReadOptions.Default, DataEntryPrefix.ST_Validator).Where(p => (p.Registered && p.Votes > Fixed8.Zero) || sv.Contains(p.PublicKey));
+            return db.Find<ValidatorState>(ReadOptions.Default, DataEntryPrefix.ST_Validator).Where(p => p.Registered || sv.Contains(p.PublicKey));
         }
 
         public override Header GetHeader(uint height)
@@ -535,6 +535,7 @@ namespace Neo.Implementations.Blockchains.LevelDB
                         account.Balances[out_prev.AssetId] -= out_prev.Value;
                     }
                 }
+                List<ApplicationExecutionResult> execution_results = new List<ApplicationExecutionResult>();
                 switch (tx)
                 {
 #pragma warning disable CS0612
@@ -626,7 +627,15 @@ namespace Neo.Implementations.Blockchains.LevelDB
                             {
                                 service.Commit();
                             }
-                            ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs(tx_invocation, service.Notifications.ToArray(), engine));
+                            execution_results.Add(new ApplicationExecutionResult
+                            {
+                                Trigger = TriggerType.Application,
+                                ScriptHash = tx_invocation.Script.ToScriptHash(),
+                                VMState = engine.State,
+                                GasConsumed = engine.GasConsumed,
+                                Stack = engine.EvaluationStack.ToArray(),
+                                Notifications = service.Notifications.ToArray()
+                            });
                             //write fulllog
                             if (bLog)
                             {
@@ -637,27 +646,13 @@ namespace Neo.Implementations.Blockchains.LevelDB
                         }
                         break;
                 }
-				foreach (UInt160 hash in tx.Outputs.Select(p => p.ScriptHash).Distinct())
-                {
-                    ContractState contract = contracts.TryGet(hash);
-                    if (contract == null) continue;
-                    using (StateMachine service = new StateMachine(block, accounts, assets, contracts, storages))
+                if (execution_results.Count > 0)
+                    ApplicationExecuted?.Invoke(this, new ApplicationExecutedEventArgs
                     {
-                        ApplicationEngine engine = new ApplicationEngine(TriggerType.ApplicationR, tx, script_table, service, Fixed8.Zero);
-                        engine.LoadScript(contract.Script, false);
-                        using (ScriptBuilder sb = new ScriptBuilder())
-                        {
-                            sb.EmitPush(0);
-                            sb.Emit(OpCode.PACK);
-                            sb.EmitPush("received");
-                            engine.LoadScript(sb.ToArray(), false);
-                        }
-                        if (engine.Execute())
-                        {
-                            service.Commit();
-                        }
-                    }
-                }				
+                        Transaction = tx,
+                        ExecutionResults = execution_results.ToArray()
+                    });
+			
             }
             accounts.DeleteWhere((k, v) => !v.IsFrozen && v.Votes.Length == 0 && v.Balances.All(p => p.Value <= Fixed8.Zero));
             accounts.Commit();
@@ -708,6 +703,8 @@ namespace Neo.Implementations.Blockchains.LevelDB
                     {
                         block_cache.Remove(hash);
                     }
+
+                    OnPersistUnlocked(block);
                 }
             }
         }
